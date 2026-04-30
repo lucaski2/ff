@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APUSH Study</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141418;
+    --surface2: #1c1c22;
+    --surface3: #242430;
+    --border: #2a2a38;
+    --accent: #c9a84c;
+    --accent2: #7b5ea7;
+    --accent3: #4a8fa8;
+    --text: #e8e4d9;
+    --text-muted: #7a7870;
+    --text-dim: #4a4840;
+    --red: #c85a4a;
+    --green: #5a9e6f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  /* HEADER */
+  header {
+    padding: 32px 48px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    position: sticky;
+    top: 0;
+    background: rgba(13,13,15,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: var(--accent);
+  }
+
+  .logo span {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-style: italic;
+    font-size: 16px;
+    margin-left: 8px;
+  }
+
+  nav {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+  }
+
+  .nav-btn {
+    background: none;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .nav-btn:hover { color: var(--text); border-color: var(--border); }
+  .nav-btn.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* UNIT SELECTOR */
+  .unit-bar {
+    padding: 16px 48px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: var(--surface);
+  }
+
+  .unit-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-right: 4px;
+  }
+
+  .unit-chip {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+
+  .unit-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .unit-chip.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+
+  .unit-chip.all { border-color: var(--accent2); color: var(--accent2); }
+  .unit-chip.all.selected { background: var(--accent2); border-color: var(--accent2); color: white; }
+
+  .count-badge {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* MAIN CONTENT */
+  main {
+    padding: 40px 48px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ========== FLASHCARDS ========== */
+  .flashcard-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+  }
+
+  .fc-progress {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .fc-progress small {
+    font-size: 18px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .fc-actions { display: flex; gap: 12px; }
+
+  .btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn:hover { background: var(--surface3); border-color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 500; }
+  .btn.primary:hover { opacity: 0.85; }
+
+  .card-arena {
+    perspective: 1200px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 36px;
+  }
+
+  .flashcard {
+    width: 100%;
+    max-width: 760px;
+    height: 420px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .flashcard.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    padding: 48px 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .card-front {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    background-image: 
+      radial-gradient(ellipse at 10% 90%, rgba(201,168,76,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 90% 10%, rgba(123,94,167,0.06) 0%, transparent 60%);
+  }
+
+  .card-back {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    transform: rotateY(180deg);
+    background-image: 
+      radial-gradient(ellipse at 90% 90%, rgba(74,143,168,0.08) 0%, transparent 60%);
+  }
+
+  .card-unit-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    opacity: 0.7;
+  }
+
+  .card-term {
+    font-family: 'Playfair Display', serif;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .card-hint {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
+  .card-back-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 20px;
+  }
+
+  .card-what {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .card-why {
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--text-muted);
+    border-left: 2px solid var(--accent);
+    padding-left: 16px;
+  }
+
+  .card-meta {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .card-meta-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
+  .card-meta-item span { color: var(--text-muted); }
+
+  .card-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .nav-arrow {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-arrow:hover { border-color: var(--accent); color: var(--accent); background: var(--surface3); }
+  .nav-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .fc-verdict {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 24px;
+  }
+
+  .verdict-btn {
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .verdict-wrong { background: rgba(200,90,74,0.15); color: var(--red); border: 1px solid rgba(200,90,74,0.3); }
+  .verdict-right { background: rgba(90,158,111,0.15); color: var(--green); border: 1px solid rgba(90,158,111,0.3); }
+  .verdict-wrong:hover { background: rgba(200,90,74,0.25); }
+  .verdict-right:hover { background: rgba(90,158,111,0.25); }
+
+  .score-row {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .score-item {
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .score-item .num { font-size: 24px; font-weight: 500; }
+  .score-item .lbl { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+  .score-item.good .num { color: var(--green); }
+  .score-item.bad .num { color: var(--red); }
+
+  /* ========== LIST ========== */
+  .list-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    align-items: center;
+  }
+
+  .search-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text-dim); }
+
+  .list-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .list-table thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .list-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 400;
+  }
+
+  .list-table tbody tr {
+    border-bottom: 1px solid rgba(42,42,56,0.5);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+
+  .list-table tbody tr:hover { background: var(--surface); }
+
+  .list-table td {
+    padding: 18px 16px;
+    vertical-align: top;
+  }
+
+  .td-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    width: 40px;
+  }
+
+  .td-term {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    min-width: 180px;
+  }
+
+  .td-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    min-width: 80px;
+  }
+
+  .td-who {
+    font-size: 13px;
+    color: var(--text-muted);
+    min-width: 140px;
+  }
+
+  .td-what {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.55;
+    max-width: 340px;
+  }
+
+  .td-when {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent3);
+    min-width: 80px;
+  }
+
+  .td-why {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    max-width: 300px;
+  }
+
+  /* ========== TIMELINE ========== */
+  .timeline-wrap {
+    position: relative;
+    padding-left: 120px;
+  }
+
+  .timeline-line {
+    position: absolute;
+    left: 96px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--border) 5%, var(--border) 95%, transparent);
+  }
+
+  .tl-group { margin-bottom: 48px; }
+
+  .tl-year-marker {
+    position: absolute;
+    left: 0;
+    width: 88px;
+    text-align: right;
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text-dim);
+    padding-top: 4px;
+  }
+
+  .tl-item {
+    position: relative;
+    padding: 0 0 28px 32px;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .tl-dot {
+    position: absolute;
+    left: -6px;
+    top: 8px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+    transition: all 0.2s;
+  }
+
+  .tl-item:hover .tl-dot { background: var(--accent); transform: scale(1.3); }
+
+  .tl-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+
+  .tl-card:hover { border-color: var(--border); border-color: rgba(201,168,76,0.3); }
+
+  .tl-term {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .tl-meta {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 10px;
+  }
+
+  .tl-who {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    letter-spacing: 0.06em;
+  }
+
+  .tl-where {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent3);
+    letter-spacing: 0.06em;
+  }
+
+  .tl-unit-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    margin-left: auto;
+  }
+
+  .tl-what {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .tl-why {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.55;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    display: none;
+  }
+
+  .tl-card.expanded .tl-why { display: block; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 100px 0;
+    color: var(--text-dim);
+  }
+
+  .empty-state .es-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.4;
+  }
+
+  .empty-state p {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* TRANSITIONS */
+  .view { animation: viewIn 0.25s ease; }
+  @keyframes viewIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">APUSH <span>fluency facts</span></div>
+  <nav>
+    <button class="nav-btn active" onclick="switchView('flashcards')">⧉ Flashcards</button>
+    <button class="nav-btn" onclick="switchView('list')">≡ List</button>
+    <button class="nav-btn" onclick="switchView('timeline')">◎ Timeline</button>
+  </nav>
+</header>
+
+<div class="unit-bar">
+  <span class="unit-label">Units</span>
+  <button class="unit-chip all selected" onclick="toggleUnit('all')">All</button>
+  <button class="unit-chip" onclick="toggleUnit('1')">Unit 1</button>
+  <button class="unit-chip" onclick="toggleUnit('2')">Unit 2</button>
+  <button class="unit-chip" onclick="toggleUnit('3')">Unit 3</button>
+  <button class="unit-chip" onclick="toggleUnit('4')">Unit 4</button>
+  <button class="unit-chip" onclick="toggleUnit('5')">Unit 5</button>
+  <button class="unit-chip" onclick="toggleUnit('6')">Unit 6</button>
+  <button class="unit-chip" onclick="toggleUnit('7')">Unit 7</button>
+  <button class="unit-chip" onclick="toggleUnit('8')">Unit 8</button>
+  <button class="unit-chip" onclick="toggleUnit('9')">Unit 9</button>
+  <span class="count-badge" id="countBadge">120 terms</span>
+</div>
+
+<main>
+  <!-- FLASHCARDS VIEW -->
+  <div class="view active" id="view-flashcards">
+    <div class="flashcard-controls">
+      <div>
+        <div class="fc-progress"><span id="fc-current">1</span> <small>/ <span id="fc-total">120</span></small></div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);margin-top:6px;letter-spacing:0.06em;">click card to flip</div>
+      </div>
+      <div class="fc-actions">
+        <button class="btn" onclick="shuffleCards()">⇄ Shuffle</button>
+        <button class="btn" onclick="resetCards()">↺ Reset</button>
+      </div>
+    </div>
+
+    <div class="card-arena">
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="card-face card-front" id="card-front"></div>
+        <div class="card-face card-back" id="card-back"></div>
+      </div>
+    </div>
+
+    <div class="card-nav">
+      <button class="nav-arrow" onclick="prevCard()" id="btn-prev">←</button>
+      <div class="fc-verdict" id="fc-verdict" style="display:none">
+        <button class="verdict-btn verdict-wrong" onclick="markCard(false)">✗ Still Learning</button>
+        <button class="verdict-btn verdict-right" onclick="markCard(true)">✓ Got It</button>
+      </div>
+      <button class="nav-arrow" onclick="nextCard()" id="btn-next">→</button>
+    </div>
+
+    <div class="score-row" id="score-row">
+      <div class="score-item good"><div class="num" id="score-got">0</div><div class="lbl">Got It</div></div>
+      <div class="score-item bad"><div class="num" id="score-learning">0</div><div class="lbl">Learning</div></div>
+    </div>
+  </div>
+
+  <!-- LIST VIEW -->
+  <div class="view" id="view-list">
+    <div class="list-controls">
+      <input type="text" class="search-input" placeholder="Search terms, people, events..." id="searchInput" oninput="filterList()">
+    </div>
+    <table class="list-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Term</th>
+          <th>Unit</th>
+          <th>Who</th>
+          <th>What</th>
+          <th>When</th>
+          <th>Significance</th>
+        </tr>
+      </thead>
+      <tbody id="list-body"></tbody>
+    </table>
+    <div class="empty-state" id="list-empty" style="display:none">
+      <div class="es-icon">◎</div>
+      <p>No terms match your filters</p>
+    </div>
+  </div>
+
+  <!-- TIMELINE VIEW -->
+  <div class="view" id="view-timeline">
+    <div class="timeline-wrap">
+      <div class="timeline-line"></div>
+      <div id="timeline-body"></div>
+    </div>
+    <div class="empty-state" id="tl-empty" style="display:none">
+      <div class="es-icon">◎</div>
+      <p>No terms match your filters</p>
+    </div>
+  </div>
+</main>
+
+<script>
+const ALL_TERMS = [
+  {id:1,unit:'1',term:'Maize',who:'Aztecs, Maya, SW Tribes',what:'Corn along with beans & squash became known as the 3 Sisters & were crucial to NAI development as it allowed for food surpluses.',where:'Mexico, American Southwest',when:'6000 BCE–Today',whenSort:-6000,why:'Transformed nomadic hunting bands to settled agricultural villages b/c of less emphasis needed on hunting/gathering; increase in health + population'},
+  {id:2,unit:'1',term:'Columbian Exchange',who:'European Settlers & Native Americans',what:'Exchange of goods between Europe & New World. Ex: Corn, potatoes, livestock.',where:'Europe, New World',when:'1492–1500s',whenSort:1492,why:'Disease was an unintended consequence that wiped out natives. Animals changed native way of life. Led to demand for slaves: cash crops like sugar.'},
+  {id:3,unit:'1',term:'Encomienda System',who:'Native Americans, Spanish, Las Casas',what:'Spanish system where settlers were given authority over Indian land, gold & forced labor from natives.',where:'Spanish colonies',when:'1512–1542',whenSort:1512,why:'Led to enslavement, exploitation & killing of NAI. Sepulveda/Las Casas debates lead to shift to African labor and the passing of The New Laws.'},
+  {id:4,unit:'2',term:'Pueblo Revolt',who:'Pueblo Indians, Popé, Spanish',what:'Rebelled against Spanish overlords, killing 400 & drove out 2k settlers. Took 12 years for the Spanish to reconquer the area.',where:'American SW',when:'1680',whenSort:1680,why:'Most effective instance of NAI resistance to colonization. Rejected Catholicism & killed priests, return to traditional religious practices.'},
+  {id:5,unit:'2',term:'Virginia Company',who:'London investors, explorers',what:'Joint stock company formed to establish Jamestown colony.',where:'Jamestown',when:'1607',whenSort:1607,why:'1st successful British settlement in NA. As a corporation, empowered to govern themselves, established precedent of self gov\'t.'},
+  {id:6,unit:'2',term:'Frame of Gov\'t',who:'William Penn',what:'Written constitution for PA that supported religious tolerance, fair trade with NAI.',where:'Pennsylvania',when:'1682',whenSort:1682,why:'Laws established in accordance with Penn\'s Quaker beliefs. Reflected Enlight beliefs. Relig freedom, civil rights, self gov\'t.'},
+  {id:7,unit:'2',term:'City Upon a Hill',who:'John Winthrop, Puritans',what:'Speech given on boat Arbella. Colony would be a city on a hill watched by the world.',where:'Boston, Mass',when:'1630',whenSort:1630,why:'Model of Christian charity for Puritans, start of American exceptionalism. Mentions by future presidents: JFK, Reagan.'},
+  {id:8,unit:'2',term:'Ann Hutchinson',who:'Roger Williams, John Cotton',what:'Puritan banished from Mass Bay Colony for heresy in 1637. Preached idea that God communicated directly to individuals instead of through the church elders.',where:'Mass Bay',when:'1637',whenSort:1637,why:'Challenged colonial gender roles, Church authority. Led to foundation of more tolerant colonies like Rhode Island.'},
+  {id:9,unit:'2',term:'King Phillip\'s War',who:'British, NAI led by Metacom',what:'War over land encroachment by British colonists.',where:'New England',when:'1675–1676',whenSort:1675,why:'Destroys power of the tribes. Most destructive war in US History in regard to population.'},
+  {id:10,unit:'2',term:'Navigation Acts',who:'Parliament, colonies, merchants',what:'Defined colonies as suppliers of raw materials & markets for GB. No foreign merchants could trade in colonies.',where:'British colonies',when:'1651',whenSort:1651,why:'Mercantilism. Enumerated goods shipped to GB for export. Benefits GB & colonies economically. Leads to resentment when enforced.'},
+  {id:11,unit:'2',term:'Covenant Chain',who:'Iroquois Confederacy',what:'Alliance & trade agreement that gave Iroquois tribal supremacy & NY favorable trading terms.',where:'New York',when:'1677',whenSort:1677,why:'Established advantage for both: Iroquois over other tribes, NY over other colonies. Shows agency of NAI using European powers.'},
+  {id:12,unit:'2',term:'Enlightenment',who:'Locke, Montesquieu, Rousseau',what:'Intellectual movement thinkers tried to apply principles of reason & methods of science to all of society.',where:'Europe, spread to colonies',when:'1600s–1700s',whenSort:1650,why:'Influenced American political leaders & documents: Dec of I, Constitution, Bill of Rights. Basis of Republicanism & Amer Rev.'},
+  {id:13,unit:'2',term:'Great Awakening',who:'Whitefield, Edwards, young people',what:'Religious movement that emphasized emotional aspects of religion.',where:'Northern colonies, spread south',when:'1730s–1760s',whenSort:1730,why:'Opposite the spread of Enlightenment ideas. 1st national movement. Questioning authority, slaves first intro to Christianity.'},
+  {id:14,unit:'3',term:'Salutary Neglect',who:'British, Colonists',what:'British Policy under which trade regulations for the colonies were laxly enforced and imperial supervision was loose.',where:'North American colonies',when:'1700–1763',whenSort:1700,why:'Contributed involuntarily to the increasing autonomy of colonial legal and legislative institutions, which ultimately led to American independence.'},
+  {id:15,unit:'3',term:'Plan of Union',who:'Ben Franklin, NAI, Albany Congress Reps',what:'BF attempted to pass plan of intercolonial cooperation about defense; favored but shot down b/c fears of loss of power.',where:'Albany, NY',when:'1754',whenSort:1754,why:'Showed diverse interests + sectionalism, not unified. Impact of French & Indian War.'},
+  {id:16,unit:'3',term:'French & Indian War',who:'Colonists, NAI, France, GB',what:'Conflict over Ohio River Valley, resulted in loss of French power in NA.',where:'Ohio River Valley',when:'1754–1763',whenSort:1754,why:'Expulsion of French from Nor. Am., Some colonial unity (Albany Plan). Increase in British debt leading to change in relationship b/w colonies.'},
+  {id:17,unit:'3',term:'Pontiac\'s Rebellion',who:'Pontiac, Gen. Thomas Gage',what:'Ottawa Chief led an uprising to oppose British expansion into W. Ohio Valley. Led to the Proclamation of 1763.',where:'Great Lakes Region, Michigan',when:'1763',whenSort:1763,why:'Pontiac shows short term success (Proc of 1763) but loss of agency. Contributes to deteriorating relations b/w GB + colonies.'},
+  {id:18,unit:'3',term:'Stamp Act',who:'Parliament, Sons of Liberty, Colonists',what:'Taxes on stamped paper, legal documents, impacts majority of colonists unlike previous taxes.',where:'Colonies, GB, Boston',when:'1765',whenSort:1765,why:'To raise revenue + pay off debt accumulated for F+I war. Americans use non-importation to hurt Britain, act repealed in 1766.'},
+  {id:19,unit:'3',term:'Sons/Daughters of Liberty',who:'American Colonists',what:'Sons: threats, protests, violence to intimidate loyalists. Daughters: boycotts, made homemade versions of products.',where:'American Colonies',when:'1765–1776',whenSort:1765,why:'Influential in orchestrating effective resistance movements against British rule on the eve of the Revolution.'},
+  {id:20,unit:'3',term:'Coercive Acts',who:'Parliament, Colonists',what:'Series of acts that put unnecessary strain on colonists, like Quartering Act, Administration of Justice Act, etc.',where:'Colonies',when:'1774',whenSort:1774,why:'To punish colonies especially Boston after Tea Party; confirms fears for colonists that GB wants to destroy American Liberty.'},
+  {id:21,unit:'3',term:'Republican Motherhood',who:'Upper class women, Abigail Adams',what:'Idea that women are the educators of the next generation, must live according to certain rules and ideals.',where:'US',when:'1770–1830s',whenSort:1770,why:'Assigned gender roles, mothers had a civic duty in society, separate spheres: men = public, women = private.'},
+  {id:22,unit:'3',term:'Articles of Confederation',who:'Delegates at Cont. Congress',what:'Set of laws utilized during & directly after the Rev. Fear of top heavy federal gov\'t led to a confederal system.',where:'Colonies, US',when:'1777–1789',whenSort:1777,why:'Created a nat\'l gov\'t but was largely unstable due to confederal system. Inability to enforce laws + tax was major issue.'},
+  {id:23,unit:'3',term:'NW Ordinance of 1787',who:'Congress',what:'Legislation outlining gov\'t in NW territory including how to enter union, outlawing slavery, paired with Land Ordinance of 1785.',where:'Territory NW of Ohio',when:'1787',whenSort:1787,why:'One key success of the Articles of Confederation, gave equal standing to new states; process for adding new states.'},
+  {id:24,unit:'3',term:'Shays\' Rebellion',who:'Daniel Shays, indebted farmers',what:'Armed march by indebted farmers to courthouse to shut down debtors prisons. Put down by state militia.',where:'Massachusetts',when:'1787',whenSort:1787,why:'Showed inability of gov\'t formed by AoC to deal with crises; lead to constitutional convention to create a more robust set of laws.'},
+  {id:25,unit:'3',term:'Great Compromise',who:'Congress: small states vs big states, Madison, Sherman',what:'Compromise between VA, NJ plans. Proposed by Roger Sherman: bicameral legislature.',where:'Philadelphia',when:'1787',whenSort:1787,why:'Shows ability to compromise in the critical period. Balances power between big and small states, North and South, commerce + slavery.'},
+  {id:26,unit:'3',term:'Federalist Papers',who:'Hamilton, Madison, Jay',what:'Collection of essays that supported ratification of the constitution aimed at citizens of New York.',where:'US',when:'1788',whenSort:1788,why:'Addressed fears about constitution; balance of power. Became an important guide for interpreting the Constitution.'},
+  {id:27,unit:'3',term:'Hamilton\'s Economic Plan',who:'Hamilton, G. Washington',what:'Assumption of states + federal debt; national bank; encourage manufacturing through taxes, tariffs.',where:'US',when:'1790',whenSort:1790,why:'Foundation of strong role of federal government in economy.'},
+  {id:28,unit:'3',term:'Jay\'s Treaty',who:'John Jay, British Gov\'t, US Gov\'t',what:'GB to withdraw all ships from US territory & western outposts. Given "most favored nation" status.',where:'US',when:'1794',whenSort:1794,why:'To avert war over British seizure of US ships. Required passage of Pinckney treaty to appease Jeffersonians.'},
+  {id:29,unit:'3',term:'Washington\'s Farewell Address',who:'George Washington, Hamilton',what:'Letter at end of 2nd term. Focus on preservation of union, danger of factions, trade w/ foreign countries; avoid political alliances.',where:'US',when:'1796',whenSort:1796,why:'Warning and inspiration for future generations. Influenced US foreign policy until end of 19th century. Precedent of two terms.'},
+  {id:30,unit:'3',term:'XYZ Affair',who:'John Adams, American and French Diplomats',what:'American peace delegation in France; French Foreign Minister\'s demand for a bribe from the American delegation.',where:'United States, France',when:'1797–8',whenSort:1797,why:'Resulted in a limited, undeclared Quasi-War. Raised anti-French sentiment causing the Alien and Sedition Acts.'},
+  {id:31,unit:'3',term:'Alien & Sedition Acts',who:'Congress, Adams, Jefferson',what:'Act curtailed freedom of press, jailed newspaper editors, created harsher requirements for immigrants to become citizens.',where:'US',when:'1798',whenSort:1798,why:'Blatantly against the 1st Amendment. Experimentation with compact theory & nullification in response.'},
+  {id:32,unit:'4',term:'Marbury v Madison',who:'Marbury, Madison, Marshall',what:'Midnight judges instated by Adams, Madison (TJ sec of state) tries to remove, Marbury sues.',where:'US',when:'1803',whenSort:1803,why:'Established role of supreme court, judicial review—courts have duty to say what law is but not to enforce it.'},
+  {id:33,unit:'4',term:'American System',who:'Henry Clay, Madison, Jackson',what:'Way to unite the country economically: Bank, tariff, internal improvements (roads, canals).',where:'US',when:'1816–1830',whenSort:1816,why:'Gov\'t sponsored econ development, protected new industries, reduce dependence on foreign made goods. Increases sectionalism.'},
+  {id:34,unit:'4',term:'Monroe Doctrine',who:'John Quincy Adams, James Monroe',what:'Statement saying that western Hem. was closed off to further colonization; US will stay out of European affairs.',where:'US',when:'1823',whenSort:1823,why:'"Big bark from small dog". Shows US to be participating more in global affairs. Won\'t be utilized until later decades.'},
+  {id:35,unit:'4',term:'Market Revolution',who:'Entrepreneurs, Lowell, Slater',what:'Rapid development in transportation, commercialization and industrialization.',where:'US, especially in North',when:'1800–1840',whenSort:1800,why:'Industrial regionalization (North vs south), shift towards paid labor, factory work, more opportunity for women in industrial workforce.'},
+  {id:36,unit:'4',term:'2nd Great Awakening',who:'Charles Finney, Peter Cartwright, Richard Allen',what:'Religious revival starts in Burned Over District (NY), spread south. Rejection of Calvinism. Increase in Baptist, Methodist Churches.',where:'US',when:'1790s–1830s',whenSort:1795,why:'Emphasis on individual piety, role in improving society. Creates a distinctly African American brand of Christianity. Impact on reform movements.'},
+  {id:37,unit:'4',term:'Seneca Falls Convention',who:'Lucretia Mott, Elizabeth Cady Stanton',what:'Women\'s rights convention resulted in Declaration of Sentiments modeled after Dec of Indep. Launched the Women\'s Rights Movement.',where:'Seneca Falls, NY',when:'1848',whenSort:1848,why:'Part of national reform community response to market revolution, 2nd Great Awakening. Eventually leads to the passage of the 19th Amendment.'},
+  {id:38,unit:'4',term:'Nullification Crisis',who:'South Carolina, Jackson, Calhoun',what:'SC nullifies the Tariff of 1832, resignation of Calhoun (AJ\'s VP). AJ issues Force Bill. Compromise reached: Tariff of 1833.',where:'SC',when:'1832–1833',whenSort:1832,why:'Highlights States rights, nullification theory. Avoidance of Civil War but was a prelude to secession.'},
+  {id:39,unit:'4',term:'Bank War',who:'Jackson, Nicholas Biddle, Clay',what:'Jackson opposed the renewal of the bank charter. Saw it as undemocratic. Biddle, Clay tried to recharter early.',where:'US',when:'1832',whenSort:1832,why:'Effective end of American system, led to the formation of the Whig Party. Led to financial panic in 1837.'},
+  {id:40,unit:'4',term:'2nd American Party System',who:'AJ, Clay, Dems, Whigs',what:'Term used to describe party system during Jacksonian era. Lines drawn among anti bank Jacksonians and pro American System Whigs.',where:'US',when:'1828–1854',whenSort:1828,why:'Reflected and shaped political, social, and cultural attitudes during era of Jacksonian Democracy.'},
+  {id:41,unit:'4',term:'Indian Removal Act',who:'Jackson, congress, Southern Civilized tribes',what:'Money, law to relocate tribes by force if necessary. NAI who assimilated were not free from this.',where:'Georgia, Alabama, Mississippi, Florida → OK',when:'1830',whenSort:1830,why:'Many tribes resisted, ended in Trail of Tears; thousands died. Opened 25 million acres to white settlers.'},
+  {id:42,unit:'4',term:'Missouri Compromise',who:'Slave states, free states, Henry Clay',what:'Missouri added as a slave state, Maine as free state, line established by congress (36/30) dictates states of slavery added in future.',where:'US, Missouri, Maine, 36\'30 line',when:'1820',whenSort:1820,why:'Senate stayed balanced between free states and slave states. No long term solution for removing slavery. Leads to more sectionalism.'},
+  {id:43,unit:'4',term:'Nat Turner\'s Rebellion',who:'Nat Turner',what:'Armed rebellion led by Nat Turner killing 57 whites. Put down by state militia.',where:'Virginia',when:'1831',whenSort:1831,why:'Destroyed myth of happy, docile slaves. Led to harsher slave codes. Hardens views on both sides, hastening Civil War.'},
+  {id:44,unit:'5',term:'Manifest Destiny',who:'American Settlers, O\'Sullivan',what:'Belief that stressed Americans were destined to expand from coast to coast because of God given gifts of civilization, democracy.',where:'West',when:'1845–1900',whenSort:1845,why:'Justified aggressive expansion, NAI removal, sparked war with Mexico. Extension of American Exceptionalism.'},
+  {id:45,unit:'5',term:'Mexican American War',who:'Pres Polk, Gen Zachary Taylor, Santa Anna',what:'1st US armed conflict fought on foreign soil. Resolved by Treaty of Hidalgo, Mexico cedes CA and NM.',where:'NM, CA, TX',when:'1846–1848',whenSort:1846,why:'Politically divisive, reignites slavery debate with Wilmot Proviso. Lights fuse that will fuel the Civil War.'},
+  {id:46,unit:'5',term:'Know Nothing Party',who:'Whigs, disaffected by N. democrats',what:'Based on nativism: anti-catholic, anti-irish, participates in Bloody Kansas. Later split because of slavery issue.',where:'US',when:'1854–1856',whenSort:1854,why:'Shows intense nativism, anti-immigrant sentiment after increased immigration of the 40s and 50s.'},
+  {id:47,unit:'5',term:'Compromise of 1850',who:'Henry Clay, Calhoun, Daniel Webster',what:'CA becomes free state; popular sovereignty in NM and UT; slave trade ends in DC; stricter Fugitive Slave Laws; TX gives up land claims.',where:'Western territories',when:'1850',whenSort:1850,why:'Last peaceful resolution of disagreement between north and south. Civil War is looming.'},
+  {id:48,unit:'5',term:'Republican Party',who:'Republicans, Former Whigs, Free Soilers',what:'New political party founded in wake of Kansas Nebraska Act. Anti Slavery activists, Conscience Whigs.',where:'NE',when:'1854',whenSort:1854,why:'Elected Lincoln in 1860. Champions of Reconstruction post War. Still one of the 2 main parties today.'},
+  {id:49,unit:'5',term:'Kansas Nebraska Act',who:'Stephen Douglas, Calhoun, Clay, Webster',what:'Propose opening northern Indian territory (KS, NE) allowing their position on slavery to be decided based on popular sovereignty.',where:'Kansas, Nebraska',when:'1854',whenSort:1854,why:'Impetus for Bleeding Kansas and Lecompton constitution, overwrites Missouri Compromise.'},
+  {id:50,unit:'5',term:'Dred Scott Decision',who:'Dred Scott, Judge Taney',what:'Scott sued for freedom after being moved to free territory. Said slaves not citizens, but property. Missouri comp declared unconstitutional.',where:'Supreme Court',when:'1857',whenSort:1857,why:'One of the Court\'s most controversial decisions. Gave momentum to the abolition movement; one of the last stepping stones to the Civil War.'},
+  {id:51,unit:'5',term:'Emancipation Proclamation',who:'Lincoln, Confederate states',what:'Abe frees all slaves in states still in rebellion on Jan 1st, 1863 after Battle of Antietam.',where:'US/Confederacy',when:'1862–1863',whenSort:1862,why:'Precursor to 13th amendment, focused civil war more on slavery issue. Political, legal, military necessity.'},
+  {id:52,unit:'5',term:'Homestead Act',who:'Republican Congress, Lincoln, settlers, NAI',what:'Congressional act giving land sales in the West; could get 160 acres for a small fee, promise to improve land.',where:'Western States',when:'1862',whenSort:1862,why:'Large impetus for western expansion. Leads to problems for Plains Tribes, overworking of land—ecological issues like the Dust Bowl.'},
+  {id:53,unit:'5',term:'Gettysburg Address',who:'Lincoln',what:'Dedication ceremony for Nat\'l Cemetery, Lincoln gives speech to rally morale and preserve union and freedoms.',where:'Gettysburg, PA',when:'1863',whenSort:1863,why:'Lincoln connects Civil War to the fight for freedom and equality. Invokes connections to the Dec of Independence.'},
+  {id:54,unit:'5',term:'Reconstruction Amendments',who:'Radical republicans, former slaves',what:'13th–15th amendments: slavery, citizenship, voting. Condition of reentry for seceding states.',where:'US',when:'1865–1870',whenSort:1865,why:'Accomplished immediate goal of reconstruction (rights + reunification). Federal gov\'t as protector of voting rights not states.'},
+  {id:55,unit:'5',term:'Sharecropping',who:'Freed slaves, southern landowners',what:'System of farming where poor farmers (mostly black) paid for their rent in some percentages of the goods produced.',where:'South',when:'Late 1860s–1940s',whenSort:1867,why:'Allowed further oppression of officially enfranchised freedmen. Keeps blacks down economically in the South until WW2.'},
+  {id:56,unit:'5',term:'Jim Crow Laws/Black Codes',who:'African Americans, local governments',what:'State and local laws legalizing segregation throughout the US. Denied opportunities for voting, jobs, education.',where:'US',when:'1880s–1968',whenSort:1880,why:'Upheld and enforced a system of white supremacy. Use of fear and intimidation—KKK, White League.'},
+  {id:57,unit:'5',term:'Compromise of 1877',who:'Rutherford B. Hayes, Sam Tilden',what:'Compromise ending the contested election of 1876 by placing Republican Hayes in office but removing Northern military from South.',where:'South',when:'1877',whenSort:1877,why:'Formally ended military reconstruction. "Great Betrayal" resulting in entrenchment of Jim Crow laws.'},
+  {id:58,unit:'6',term:'Gilded Age',who:'Mark Twain, upper class',what:'Rapid econ growth between end of Civil War and the 20th Century. Leads to conspicuous consumption, corruption of industrialists.',where:'US',when:'Late 19th Century',whenSort:1870,why:'Ushered in the modern age of American cities. Evidence of shifting morality, gap between rich & poor. Leads to labor, progressive/populist movements.'},
+  {id:59,unit:'6',term:'Gospel of Wealth',who:'Andrew Carnegie',what:'Treatise written by Carnegie that said rich had duty to be charitable, establish libraries, museums, colleges.',where:'US',when:'1889',whenSort:1889,why:'Called into question duty of rich people. Advocated individual philanthropy similar to idea of trickle down economics.'},
+  {id:60,unit:'6',term:'Political Machines',who:'Boss Tweed, Thomas Nast',what:'Corrupt political entities like Tammany Hall controlled by a boss that wielded immense power over local/state politics.',where:'NY, Chicago, Philadelphia',when:'1830s–1930',whenSort:1850,why:'Prime example of fraud, political domination + graft in Gilded Age. Later faced scrutiny from critics like Nast and Pendleton Act of 1883.'},
+  {id:61,unit:'6',term:'The New South',who:'Former Confederacy, Henry Grady',what:'New social/political/economic systems in the South post Civil War in an attempt to rebuild the South—industrialize, modernize.',where:'South',when:'1877–1900',whenSort:1877,why:'South had to figure out how to create a new way to create revenue. Not very successful. Sharecropping, segregation continues.'},
+  {id:62,unit:'6',term:'Dawes Severalty Act',who:'Congress, NAI, Grover Cleveland, Sen. Henry Dawes',what:'Act ending tribal ownership of lands, allocating some to NAI, gov\'t selling the rest. Objective was forced assimilation.',where:'US',when:'1887',whenSort:1887,why:'Undermined the NAI tribal structure and destroyed their way of life; cultural genocide. Stripped over 90 million acres from NAI.'},
+  {id:63,unit:'6',term:'Wounded Knee',who:'Sitting Bull',what:'Began with arrest of Sitting Bull (killed) in response to the Ghost Dance movement. Massacre left 150 Sioux dead.',where:'Pine Ridge Reservation, S. Dakota',when:'1890',whenSort:1890,why:'Last major armed conflict between Lakota Sioux and US Army; the end of NAI resistance in the Plains.'},
+  {id:64,unit:'6',term:'Populist Party',who:'Weaver, WJ Bryan, farmers',what:'Calling for: Gov\'t ownership of RR, bank, telegraph, graduated income tax, 8 hour workday, free Silver.',where:'Western states',when:'1890s',whenSort:1890,why:'Farmers involved in politics because their demands were ignored by major parties. Paves way for the Progressives.'},
+  {id:65,unit:'6',term:'Interstate Commerce Commission (ICC)',who:'Congress, farmers',what:'Agency created to regulate the RR industry to ensure fair rates, eliminate rate discrimination.',where:'US',when:'1887',whenSort:1887,why:'1st independent regulatory body, 1st agency to regulate big business. One of the few (short lived) successes of the Populist Party.'},
+  {id:66,unit:'6',term:'American Federation of Labor (AFL)',who:'Samuel Gompers, skilled white male workers',what:'Union bargained w/ management for better wages, conditions & hours. Organized along craft lines. Utilized collective bargaining.',where:'US',when:'1886',whenSort:1886,why:'Use of collective bargaining = effective as an exclusive union. Less overtly political—allowed for their longevity.'},
+  {id:67,unit:'6',term:'Haymarket Riot',who:'Knights of Labor',what:'Peaceful protest for labor rights in Chicago that turned violent when a bomb was thrown at police.',where:'Chicago',when:'May 4, 1886',whenSort:1886,why:'Associates the labor movement with anarchy, violence, and radicalism. Major setback for unions.'},
+  {id:68,unit:'6',term:'Chinese Exclusion Act',who:'Congress, Chinese Immigrants',what:'Act ending immigration from China for 10 years; no naturalization. Made permanent in 1902. Repealed in 1943.',where:'US',when:'1882',whenSort:1882,why:'Increase in nativism, violence against Chinese. Impact relationships with other Asian nations (Japan—Gentlemen\'s Agreement).'},
+  {id:69,unit:'6',term:'NAWSA',who:'Carrie Chapman Catt, Anthony, Stanton',what:'Merging of 2 opposing suffrage factions. Worked on both a state by state campaign and a Constitutional Amendment to grant women the vote.',where:'Washington DC',when:'1890–1920',whenSort:1890,why:'Successful at getting the 19th amendment passed in 1920 but were a segregated movement especially after the 15th Amendment.'},
+  {id:70,unit:'6',term:'Plessy v Ferguson',who:'Supreme Court, African Americans, Homer Plessy',what:'Racially mixed shoemaker (Plessy) arrested after boarding whites only train car in Louisiana as a civil rights test case.',where:'US',when:'1896',whenSort:1896,why:'Gave legal backing to Jim Crow Laws and legitimized "Separate But Equal" doctrine. Will stand until overturned in Brown v Board.'},
+  {id:71,unit:'7',term:'Progressive Era',who:'Women, Middle class reformers',what:'Wide ranging movement focused on raising social change, consciousness after the changes the Civil War & industrialization brought upon US society.',where:'US',when:'1890–1920',whenSort:1890,why:'Gave mainstream support to many previous reform movements like Populists. Long term success: referendum, recall, initiative, women\'s suffrage.'},
+  {id:72,unit:'7',term:'Sherman Antitrust Act',who:'Congress, Teddy Roosevelt',what:'Allowed gov\'t to break up large trusts, monopolies to regulate industry when they interfered with trade, competition.',where:'US',when:'1890',whenSort:1890,why:'Initially used on unions as "illegal combinations" until T.R. Gives gov\'t direct role in economy.'},
+  {id:73,unit:'7',term:'Preservationism',who:'John Muir, Gifford Pinchot, T.R.',what:'Conservation vs preservation. Preservation = nature should be pristine, untouched; Conservation = open to public use but not used up.',where:'US',when:'1870s–1905',whenSort:1870,why:'Advocated for national/state parks, wildlife refuges. Issues at center of every major environmental debate.'},
+  {id:74,unit:'7',term:'18th Amendment',who:'Congress, Wilson, WCTU',what:'Amendment passed outlawing alcohol. Also known as Prohibition or the Volstead Act.',where:'US',when:'Jan 1920',whenSort:1920,why:'Bans alcohol nationwide, hard to enforce, rise of speakeasies and organized crime, repealed in 1933 with the 21st amendment.'},
+  {id:75,unit:'7',term:'Sedition Act',who:'Eugene Debs, Woodrow Wilson, A. Mitchell Palmer',what:'Lets gov\'t go after anyone criticizing US gov\'t/war; focused on radicals, draft dodgers, pacificists, socialists.',where:'US',when:'1918',whenSort:1918,why:'Increased federal control during WWI, limiting freedom of speech. Famous cases: Debs, Schenck. Will set the stage for the Red Scares.'},
+  {id:76,unit:'7',term:'Versailles Treaty',who:'Wilson, European Reps',what:'Treaty ending WWI, centered around 14 points and League of Nations. Fails to win approval from congress.',where:'Versailles, International',when:'1919',whenSort:1919,why:'Forced Germany to pay reparations—leading to WW2. Shows failure of Wilson\'s idealism (peace without victory).'},
+  {id:77,unit:'7',term:'1st Red Scare',who:'A. Mitchell Palmer, Communists',what:'Sparked by Russian Rev. Fear that radical political movements were threatening American government, capitalism, and social order.',where:'US',when:'1917–1920',whenSort:1917,why:'Leads to mass arrests, deportations, violations of civil liberties. Sedition Act set the stage to target critics.'},
+  {id:78,unit:'7',term:'19th Amendment',who:'Congress, Alice Paul, Carrie Chapman Catt',what:'Amendment giving vote to women ending almost a century of protest from groups like NAWSA, Nat\'l Women\'s Party.',where:'US',when:'1920',whenSort:1920,why:'Culmination of women\'s suffrage movement. Despite passage, poll taxes and Jim Crow Laws continue to bar black women from suffrage.'},
+  {id:79,unit:'7',term:'Scopes Trial',who:'John Scopes, Clarence Darrow, WJB',what:'HS teacher violates Butler Act (Tenn) which prohibited teaching of evolution. Circus Trial over religion/science & role of gov\'t in education.',where:'Dayton, TN',when:'1925',whenSort:1925,why:'Reflected clash between modern ideas and traditional religious beliefs, highlighting cultural tensions over education, morality.'},
+  {id:80,unit:'7',term:'1920s Immigration Acts',who:'Immigrants, Congress',what:'Federal laws that established national-origin quotas to sharply limit immigration, especially from Southern and Eastern Europe.',where:'US',when:'1921, 1924',whenSort:1921,why:'Reflected widespread xenophobia, fear of communist revolution, racism, and intense nationalism.'},
+  {id:81,unit:'7',term:'NAACP',who:'African American activists, WEB Du Bois',what:'Formed in NY by white + black activists in response to race riots, lynchings. Strove for racial equality on nat\'l level.',where:'US',when:'1909–today',whenSort:1909,why:'One of the most effective & influential organizations fighting for racial equality. Major influence on Civil Rights Movement.'},
+  {id:82,unit:'7',term:'Great Migration',who:'Southern Blacks',what:'Demographic shift, millions of blacks move north to escape racial violence and for work beginning in WW1.',where:'Rural south to N. cities (Chicago, Detroit)',when:'1914–1920',whenSort:1914,why:'Competition for jobs, housing led to increase in racial tension (Red Summer 1919). Redlining. Impacts Harlem Renaissance.'},
+  {id:83,unit:'7',term:'Harlem Renaissance',who:'Langston Hughes, Hurston, Ellington',what:'1920s cultural movement centered in Harlem where African American artists, writers, musicians flourished.',where:'Harlem, NY',when:'1920–1930',whenSort:1920,why:'Asserted Black pride and identity in response to racism and segregation. Challenged racist stereotypes through art, music, and literature.'},
+  {id:84,unit:'7',term:'Marcus Garvey',who:'Garvey, African Americans, UNIA',what:'Black nationalist/leader of Pan African movement; disagreed with integration & accommodationist views. Founded the UNIA.',where:'Liberia, NY',when:'1887–1940',whenSort:1920,why:'Advocated for "separate but equal" status for black Americans and pushed for return to Africa. Influenced black power movement.'},
+  {id:85,unit:'7',term:'New Deal Coalition',who:'Workers, Unions, Farmers, African Americans',what:'Political alliance of diverse voting groups that supported FDR, Dem Party and the New Deal.',where:'US',when:'1930s',whenSort:1932,why:'Promoted big government resulting in many large long lasting programs. Led to Democratic Party controlling both houses for decades.'},
+  {id:86,unit:'7',term:'Social Security Act',who:'FDR, Dr. Townsend, Congress',what:'Act that gave benefits to the elderly, unemployed. Benefits are based on how much a person paid into the system via pensions.',where:'US',when:'1935',whenSort:1935,why:'Established a social safety net. Millions of Americans have been helped. Prime example of modern liberalism: gov\'t as the vehicle for help.'},
+  {id:87,unit:'7',term:'Lend Lease Act',who:'US, Britain',what:'Provides military aid to any country whose security deemed vital to US security. Military aid to GB with understanding US would be paid back.',where:'International',when:'1941',whenSort:1941,why:'Furthers US involvement in growing global struggle on side with France, GB.'},
+  {id:88,unit:'7',term:'Code Talkers',who:'Navajo, US military',what:'Navajo Marines who conveyed messages in Navajo code that was unbreakable by the Axis powers in WWII.',where:'Pacific theater',when:'1940–1945',whenSort:1940,why:'Provided fast and secure line of communication on the front lines of WWII. One of the only codes not broken during the war.'},
+  {id:89,unit:'7',term:'Executive Order 9066',who:'FDR, Sec of War Henry Stimson, War Relocation Authority',what:'Forced removal of Japanese Americans from west coast into internment camps. Upheld in Korematsu v US.',where:'West Coast',when:'Feb 19, 1942',whenSort:1942,why:'Affected the lives of over 120,000 American citizens. Long standing question of constitutional rights being violated in time of war.'},
+  {id:90,unit:'7',term:'Bracero Program',who:'Mexican workers',what:'Agreements between the US and Mexico to allow Mexican men to come to the US for work.',where:'Southwest US and Mexico',when:'1942–1964',whenSort:1942,why:'Largest US contract labor system ever (employed 4 million workers). Led to advocacy from many groups including Chavez/Huerta and the UFW.'},
+  {id:91,unit:'7',term:'D-Day',who:'US + Allies vs Nazis, Eisenhower',what:'AKA Operation Overlord. Largest amphibious invasion in military history. US troops @ Omaha, Utah Beaches.',where:'Normandy, France',when:'June 6, 1944',whenSort:1944,why:'Opened up the long awaited 2nd front in Europe. Victorious turning point for the Allies and beginning of the end of Nazi control of Europe.'},
+  {id:92,unit:'8',term:'Truman Doctrine',who:'Truman, George Kennan, GB, Turkey, Greece',what:'AKA Containment Policy. GB couldn\'t fund anti-communist side in Turkish civil war. Truman sends $400 million to Turkey and Greece.',where:'Europe',when:'1947',whenSort:1947,why:'Asserted US right to intervene to save other countries from communism. Containment policy will dominate US foreign policy for much of the Cold War.'},
+  {id:93,unit:'8',term:'Marshall Plan',who:'George Marshall, Truman',what:'European recovery program. Designed to prevent socialism from getting foothold in western Europe. Protect markets for US.',where:'Europe',when:'1947',whenSort:1947,why:'Deepens wedge between US and USSR. Soviets will respond with their own version: Molotov Plan.'},
+  {id:94,unit:'8',term:'Korean War',who:'Truman',what:'A proxy war between the US and USSR in Korea. No "winner," and essentially no change in borders due to the war.',where:'Korean Peninsula',when:'1950–1953',whenSort:1950,why:'Demonstrates the Truman doctrine at work attempting to contain communism but unable to unify Korea. Foreshadows quagmires like Vietnam.'},
+  {id:95,unit:'8',term:'GI Bill',who:'Congress, veterans',what:'Law providing benefits to WW2 vets: low cost mortgages, low interest loans for business, cash for tuition.',where:'US',when:'1944',whenSort:1944,why:'Boosts people into the middle class leading to suburban growth and transforming American education.'},
+  {id:96,unit:'8',term:'McCarthyism / 2nd Red Scare',who:'Joe McCarthy, HUAC, Congress, Ike',what:'Investigation into hysteria about subversives in federal government, used to target individuals groups for being "un american".',where:'US',when:'1950s',whenSort:1950,why:'Infringement of civil liberties in the name of Cold War hysteria. Homosexuals targeted (Lavender Scare). Led to loss of jobs for thousands.'},
+  {id:97,unit:'8',term:'Military Industrial Complex',who:'Ike, US gov\'t army',what:'Ike\'s Farewell Address. Warned nation: danger posed to democracy by relationship between gov\'t, DoD & defense industries.',where:'US',when:'1961',whenSort:1961,why:'Still true today. US continues to vastly outspend other nations on weapons/defense. More difficult to rein in defense spending.'},
+  {id:98,unit:'8',term:'Brown v Board of Education',who:'Linda Brown, Earl Warren, Thurgood Marshall',what:'Supreme court ruling that ruled segregation in public schools unconstitutional. Overturned Plessy v. Ferguson.',where:'US',when:'1954',whenSort:1954,why:'Overturned Plessy v. Ferguson and represented a first success of the Civil Rights Movement. It paved the way for later Civil Rights reforms.'},
+  {id:99,unit:'8',term:'Civil Rights Act of 1964',who:'Lyndon Baines Johnson',what:'Outlawed discrimination based on race, color, religion, sex or national origin. Ended racial segregation in all institutions.',where:'US',when:'1964',whenSort:1964,why:'Started the desegregation process in the US, shows the Legislative branch finally taking action to start civil rights movement.'},
+  {id:100,unit:'8',term:'Great Society',who:'Lyndon B. Johnson',what:'Ambitious series of policy initiatives and programs with the main goals of ending poverty, reducing crime, abolishing inequality.',where:'US',when:'1964',whenSort:1964,why:'Major achievements: Civil Rights Act, Voting Rights Act, Immigration Act of 1965, Medicare and Medicaid.'},
+  {id:101,unit:'8',term:'Vietnam War',who:'Ho Chi Minh, JFK, Johnson, Nixon',what:'A long proxy war fought between North (communist) and South Vietnam. US support escalated greatly under LBJ esp after Gulf of Tonkin.',where:'Vietnam',when:'1955–1975',whenSort:1955,why:'Exposed the limits of US containment policy and domino theory. Helped spark anti-war movements. Contributed to division in America.'},
+  {id:102,unit:'8',term:'War Powers Act of 1973',who:'Nixon, Congress',what:'A law that limits the president\'s ability to commit US troops to long-term armed conflicts without Congressional approval.',where:'US',when:'1973',whenSort:1973,why:'Response to the Vietnam War. Signals a shift to a more cautious foreign policy. Demonstrates reassertion of Congressional power.'},
+  {id:103,unit:'8',term:'Immigration Acts of 1965',who:'LBJ, congress, immigrants',what:'Change of immigration policy of the 1920s, abolished the "national-origins" quota and doubled the number of immigrants allowed annually.',where:'USA, Asia, Latin America',when:'1965',whenSort:1965,why:'Immigration numbers increased largely and created more diversity in America. Largest increases from Latinx, Asian nations.'},
+  {id:104,unit:'8',term:'Environmental Protection Agency',who:'Richard Nixon, congress, Rachel Carson',what:'Federal agency to oversee environmental monitoring and cleanup programs. Invented to protect human and environmental health.',where:'USA',when:'1970',whenSort:1970,why:'Protected against pollution and destruction. Shows how the federal government has more direct concern of environmental issues.'},
+  {id:105,unit:'8',term:'Black Panther Party',who:'Huey P. Newton, Bobby Seale',what:'Activist black power party that worked towards AA rights and conducted community service (education, health programs) in large cities.',where:'Oakland, CA',when:'1966',whenSort:1966,why:'Showed a shift in the civil rights movement from nonviolence to militant self-defense and community empowerment.'},
+  {id:106,unit:'8',term:'ERA',who:'Gloria Steinem, Phyllis Schlafly',what:'Proposed amendment to the US Constitution to guarantee equal legal rights for all American citizens regardless of sex.',where:'USA',when:'1971',whenSort:1971,why:'Goal: create a clear, enforceable constitutional guarantee of equality. Passed Congress, but not by state legislatures, thus failing.'},
+  {id:107,unit:'8',term:'Roe v Wade',who:'Supreme Court, Norma McCorvey (Roe)',what:'Landmark Supreme Court ruling legalizing abortion in the first 2 trimesters. Court ruled 7-2 that the right to privacy was protected.',where:'US',when:'1973',whenSort:1973,why:'Reshaped national politics. Divides the US into pro choice and pro life camps, grass roots movements on both sides.'},
+  {id:108,unit:'8',term:'Stonewall',who:'Gay Rights Activists, NYPD, Marsha P Johnson',what:'Series of demonstrations by LGBTQ community in response to a police raid at the Stonewall Inn in Greenwich Village.',where:'Greenwich Village, New York City',when:'June 28, 1969',whenSort:1969,why:'Widely considered a watershed event that transformed the gay liberation movement and the twentieth-century fight for LGBTQ rights.'},
+  {id:109,unit:'8',term:'Chicano Movement',who:'Cesar Chavez, Dolores Huerta, Brown Berets',what:'Social and political movement that worked to embrace a Chicano/a identity and combat structural racism, encourage cultural revitalization.',where:'SW United States',when:'1965–1975',whenSort:1965,why:'Brought about educational, economic, and political reforms for people of Mexican-American descent.'},
+  {id:110,unit:'8',term:'Détente',who:'Nixon, Reagan, China, Soviet Union',what:'Relaxation of tensions between US, Soviet Union. A time of increased trade and cooperation evidenced by the SALT treaties.',where:'US, Russia',when:'1970s–1980s',whenSort:1972,why:'Relaxed tensions contribute to the end of the Cold War. Strategic response to Vietnam era strain, rising defense costs.'},
+  {id:111,unit:'8',term:'Watergate',who:'Richard Nixon, DNC, congress',what:'Political scandal following the arrest of 5 burglars caught at the Watergate Complex, home of the DNC. Uncovered by WaPo.',where:'USA',when:'1972–1974',whenSort:1972,why:'First president to resign to avoid impeachment. Led to limits on presidential power and contributed to voter apathy.'},
+  {id:112,unit:'8',term:'OPEC',who:'Saudi Arabia, Egypt, Syria, etc.',what:'Arab majority of OPEC started an embargo against countries that supported Israel in the 1973 Yom Kippur War; oil prices skyrocket.',where:'USA, Europe, Middle East',when:'1973–1974',whenSort:1973,why:'Causes emergency rationing, long term recession (stagflation of the 1970s). Leads to unpopularity of Carter and election of Reagan.'},
+  {id:113,unit:'8',term:'Sunbelt',who:'American People',what:'Internal migration to South and Western states for retirement, jobs (defense, tech, service), climate, lower taxes from NE cities.',where:'Sunbelt States: So Cal, Arizona, TX, Florida',when:'1950s–1970s',whenSort:1955,why:'Increases population and importance politically of Sunbelt states. Changes demographics: retirees, immigrants reshaped cultural dynamics.'},
+  {id:114,unit:'8',term:'Moral Majority',who:'Christians, Pat Robertson, Jerry Falwell',what:'Christian political action group that formed to further conservative, religious agenda including allowing prayer in schools and outlawing abortion.',where:'US',when:'1979–1989',whenSort:1979,why:'Rise of religious fundamentalism as a response to social change of the 70s. New use of media. Helps Reagan win in 1980.'},
+  {id:115,unit:'8',term:'Iranian Hostage Crisis',who:'Hostages, Carter, Reagan, Ayatollah Khomeini',what:'52 US diplomats and civilians held for 444 days. Prompted by Iranian anger over US support of ousted Shah.',where:'Tehran, Iran',when:'1979–1980',whenSort:1979,why:'Hurt Carter\'s presidency (failed rescue attempt). Symbol of declining power of America; leads to more aggressive foreign policy.'},
+  {id:116,unit:'9',term:'Reaganomics',who:'Reagan',what:'Econ policies of Pres Reagan. Supply side econ. Reduce gov\'t spending, reduce taxes, reduce gov\'t regulation, tighten money supply.',where:'US',when:'1980s',whenSort:1981,why:'US debt balloons; some argue benefitted US economy because it ended the inflation of the 1970s. Still advocated by many conservatives today.'},
+  {id:117,unit:'9',term:'Strategic Defense Initiative',who:'Reagan',what:'"Star Wars". Increased defense spending to fund space based missile defense system. US did not have the required tech to make it a reality.',where:'US',when:'1983',whenSort:1983,why:'Goal was to move away from the M.A.D. approach. Some believe it scares the Russians enough to put an eventual end to the Cold War.'},
+  {id:118,unit:'9',term:'Operation Desert Storm',who:'US Soldiers, Bush, Saddam Hussein',what:'Iraq invades oil rich Kuwait. US-led bombing and ground troops to liberate Kuwait.',where:'Kuwait',when:'1991',whenSort:1991,why:'1st major foreign crisis after Cold War ends. US as a world police power in the post Soviet era. Will lead to a 2nd Gulf War in 2003.'},
+  {id:119,unit:'9',term:'NAFTA',who:'Clinton, Canadian & Mexican leaders',what:'Treaty established free trade in North America, lifting tariffs on participating countries.',where:'US, Canada, Mexico',when:'1992',whenSort:1992,why:'Improved flow of goods, leads to general economic upturn but did result in some outsourcing of jobs. Shows shift to globalization.'},
+  {id:120,unit:'9',term:'War on Terror',who:'George W. Bush, Al-Qaeda, Osama Bin Laden',what:'A shift in American foreign policy following 4 surprise terrorist attacks on the morning of 9/11 (2,977 Americans killed).',where:'NYC, DC, World',when:'9/11/01–present',whenSort:2001,why:'Creation of Dept of Homeland Security, Patriot Acts. Expansion of state surveillance. A new kind of warfare: war on groups/networks vs countries.'},
+];
+
+const UNIT_NAMES = {
+  '1':'Unit 1 — Native America & Early Contact',
+  '2':'Unit 2 — Colonial America',
+  '3':'Unit 3 — Revolution & Early Republic',
+  '4':'Unit 4 — Jacksonian Era',
+  '5':'Unit 5 — Antebellum & Civil War',
+  '6':'Unit 6 — Gilded Age',
+  '7':'Unit 7 — Progressive Era & WWII',
+  '8':'Unit 8 — Cold War',
+  '9':'Unit 9 — Reagan & Beyond',
+};
+
+// STATE
+let selectedUnits = new Set(['all']);
+let currentView = 'flashcards';
+let filteredTerms = [...ALL_TERMS];
+
+// FLASHCARD STATE
+let fcDeck = [];
+let fcIndex = 0;
+let isFlipped = false;
+let gotIt = 0;
+let learning = 0;
+
+function getFilteredTerms() {
+  if (selectedUnits.has('all')) return [...ALL_TERMS];
+  return ALL_TERMS.filter(t => selectedUnits.has(t.unit));
+}
+
+function toggleUnit(unit) {
+  if (unit === 'all') {
+    selectedUnits.clear();
+    selectedUnits.add('all');
+    document.querySelectorAll('.unit-chip').forEach(c => c.classList.remove('selected'));
+    document.querySelector('.unit-chip.all').classList.add('selected');
+  } else {
+    selectedUnits.delete('all');
+    document.querySelector('.unit-chip.all').classList.remove('selected');
+    if (selectedUnits.has(unit)) {
+      selectedUnits.delete(unit);
+    } else {
+      selectedUnits.add(unit);
+    }
+    if (selectedUnits.size === 0) {
+      selectedUnits.add('all');
+      document.querySelector('.unit-chip.all').classList.add('selected');
+    }
+    document.querySelectorAll('.unit-chip:not(.all)').forEach(c => {
+      const u = c.getAttribute('onclick').match(/'(\d+)'/)[1];
+      c.classList.toggle('selected', selectedUnits.has(u));
+    });
+  }
+  filteredTerms = getFilteredTerms();
+  document.getElementById('countBadge').textContent = filteredTerms.length + ' terms';
+  refreshCurrentView();
+}
+
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  refreshCurrentView();
+}
+
+function refreshCurrentView() {
+  filteredTerms = getFilteredTerms();
+  if (currentView === 'flashcards') initFlashcards();
+  else if (currentView === 'list') renderList();
+  else if (currentView === 'timeline') renderTimeline();
+}
+
+// ======== FLASHCARDS ========
+function initFlashcards() {
+  fcDeck = [...filteredTerms];
+  fcIndex = 0;
+  isFlipped = false;
+  gotIt = 0;
+  learning = 0;
+  updateScores();
+  renderCard();
+}
+
+function shuffleCards() {
+  for (let i = fcDeck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [fcDeck[i], fcDeck[j]] = [fcDeck[j], fcDeck[i]];
+  }
+  fcIndex = 0;
+  isFlipped = false;
+  renderCard();
+}
+
+function resetCards() {
+  initFlashcards();
+}
+
+function renderCard() {
+  if (fcDeck.length === 0) return;
+  const card = fcDeck[fcIndex];
+  const flashcard = document.getElementById('flashcard');
+  flashcard.classList.remove('flipped');
+  isFlipped = false;
+
+  document.getElementById('fc-current').textContent = fcIndex + 1;
+  document.getElementById('fc-total').textContent = fcDeck.length;
+  document.getElementById('fc-verdict').style.display = 'none';
+
+  document.getElementById('btn-prev').disabled = fcIndex === 0;
+  document.getElementById('btn-next').disabled = fcIndex === fcDeck.length - 1;
+
+  document.getElementById('card-front').innerHTML = `
+    <div class="card-unit-tag">${UNIT_NAMES[card.unit]}</div>
+    <div class="card-term">${card.term}</div>
+    <div class="card-hint">click to reveal →</div>
+  `;
+
+  document.getElementById('card-back').innerHTML = `
+    <div class="card-back-label">Definition & Significance</div>
+    <div class="card-what">${card.what}</div>
+    <div class="card-why">${card.why}</div>
+    <div class="card-meta">
+      <div class="card-meta-item">Who: <span>${card.who}</span></div>
+      <div class="card-meta-item">Where: <span>${card.where}</span></div>
+      <div class="card-meta-item">When: <span>${card.when}</span></div>
+    </div>
+  `;
+}
+
+function flipCard() {
+  const flashcard = document.getElementById('flashcard');
+  isFlipped = !isFlipped;
+  flashcard.classList.toggle('flipped', isFlipped);
+  document.getElementById('fc-verdict').style.display = isFlipped ? 'flex' : 'none';
+}
+
+function nextCard() {
+  if (fcIndex < fcDeck.length - 1) {
+    fcIndex++;
+    isFlipped = false;
+    renderCard();
+  }
+}
+
+function prevCard() {
+  if (fcIndex > 0) {
+    fcIndex--;
+    isFlipped = false;
+    renderCard();
+  }
+}
+
+function markCard(correct) {
+  if (correct) gotIt++;
+  else learning++;
+  updateScores();
+  if (fcIndex < fcDeck.length - 1) {
+    fcIndex++;
+    isFlipped = false;
+    renderCard();
+  }
+}
+
+function updateScores() {
+  document.getElementById('score-got').textContent = gotIt;
+  document.getElementById('score-learning').textContent = learning;
+}
+
+// ======== LIST ========
+function renderList(searchTerm = '') {
+  const terms = filteredTerms.filter(t => {
+    if (!searchTerm) return true;
+    const q = searchTerm.toLowerCase();
+    return t.term.toLowerCase().includes(q) || t.who.toLowerCase().includes(q) || t.what.toLowerCase().includes(q) || t.why.toLowerCase().includes(q);
+  });
+
+  const tbody = document.getElementById('list-body');
+  tbody.innerHTML = '';
+
+  if (terms.length === 0) {
+    document.getElementById('list-empty').style.display = 'block';
+    return;
+  }
+  document.getElementById('list-empty').style.display = 'none';
+
+  terms.forEach(t => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="td-num">${t.id}</td>
+      <td class="td-term">${t.term}</td>
+      <td class="td-unit">Unit ${t.unit}</td>
+      <td class="td-who">${t.who}</td>
+      <td class="td-what">${t.what}</td>
+      <td class="td-when">${t.when}</td>
+      <td class="td-why">${t.why}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterList() {
+  renderList(document.getElementById('searchInput').value);
+}
+
+// ======== TIMELINE ========
+function renderTimeline() {
+  const terms = [...filteredTerms].sort((a, b) => a.whenSort - b.whenSort);
+  const body = document.getElementById('timeline-body');
+  body.innerHTML = '';
+
+  if (terms.length === 0) {
+    document.getElementById('tl-empty').style.display = 'block';
+    return;
+  }
+  document.getElementById('tl-empty').style.display = 'none';
+
+  // Group by approximate era
+  const groups = {};
+  terms.forEach(t => {
+    const decade = Math.floor(t.whenSort / 10) * 10;
+    if (!groups[decade]) groups[decade] = [];
+    groups[decade].push(t);
+  });
+
+  Object.keys(groups).sort((a,b) => a-b).forEach(decade => {
+    const grp = document.createElement('div');
+    grp.className = 'tl-group';
+
+    groups[decade].forEach((t, i) => {
+      const item = document.createElement('div');
+      item.className = 'tl-item';
+      item.style.animationDelay = (i * 0.05) + 's';
+
+      if (i === 0) {
+        const marker = document.createElement('div');
+        marker.className = 'tl-year-marker';
+        marker.textContent = decade < 0 ? Math.abs(decade) + ' BCE' : decade + 's';
+        item.style.position = 'relative';
+        item.insertBefore(marker, item.firstChild);
+      }
+
+      item.innerHTML += `
+        <div class="tl-dot"></div>
+        <div class="tl-card" onclick="this.classList.toggle('expanded')">
+          <div class="tl-term">${t.term}</div>
+          <div class="tl-meta">
+            <span class="tl-who">${t.who}</span>
+            <span class="tl-where">${t.where}</span>
+            <span class="tl-unit-tag">Unit ${t.unit} · ${t.when}</span>
+          </div>
+          <div class="tl-what">${t.what}</div>
+          <div class="tl-why"><strong style="color:var(--accent3);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Significance</strong><br><br>${t.why}</div>
+        </div>
+      `;
+      grp.appendChild(item);
+    });
+
+    body.appendChild(grp);
+  });
+}
+
+// INIT
+initFlashcards();
+renderList();
+renderTimeline();
+</script>
+</body>
+</html>
