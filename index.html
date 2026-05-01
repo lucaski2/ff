@@ -637,6 +637,206 @@
   }
   .dc-reset-btn:hover { background: var(--surface3); color: var(--text); }
 
+  /* ========== KNOWN VIEW ========== */
+  .known-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .known-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .known-subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
+  .known-header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .btn.danger {
+    background: rgba(200,90,74,0.12);
+    border-color: rgba(200,90,74,0.3);
+    color: var(--red);
+  }
+  .btn.danger:hover { background: rgba(200,90,74,0.22); border-color: var(--red); }
+
+  .known-empty {
+    text-align: center;
+    padding: 80px 0;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    line-height: 1.6;
+  }
+
+  .known-empty .es-icon { font-size: 44px; margin-bottom: 14px; opacity: 0.35; }
+
+  .known-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+  }
+
+  .known-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    transition: border-color 0.15s;
+  }
+
+  .known-card:hover { border-color: rgba(201,168,76,0.35); }
+
+  .known-card-info { min-width: 0; }
+
+  .known-card-term {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .known-card-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+  }
+
+  .known-card-remove {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.15s;
+  }
+
+  .known-card-remove:hover { color: var(--red); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    animation: viewIn 0.2s ease;
+  }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .modal-results {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .modal-result-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.15s;
+    gap: 10px;
+  }
+
+  .modal-result-item:hover { background: var(--surface2); }
+
+  .modal-result-item.already-known { opacity: 0.45; cursor: default; }
+
+  .modal-result-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .modal-result-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .modal-result-add {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .modal-result-item.already-known .modal-result-add { color: var(--text-dim); }
+
+  /* Known indicator on flashcard */
+  .known-badge {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: rgba(90,158,111,0.2);
+    border: 1px solid rgba(90,158,111,0.4);
+    color: var(--green);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border-radius: 20px;
+    z-index: 5;
+    pointer-events: none;
+  }
+
   /* SCROLLBAR */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
@@ -658,7 +858,7 @@
   <nav>
     <button class="nav-btn active" onclick="switchView('flashcards')">⧉ Flashcards</button>
     <button class="nav-btn" onclick="switchView('list')">≡ List</button>
-
+    <button class="nav-btn" onclick="switchView('known')">★ Known</button>
   </nav>
 </header>
 
@@ -691,7 +891,7 @@
       </div>
     </div>
 
-    <div class="card-arena">
+    <div class="card-arena" id="card-arena">
       <div class="flashcard" id="flashcard" onclick="flipCard()">
         <div class="card-face card-front" id="card-front">
           <div class="card-front-unit-bar" id="cf-unit-bar">Unit —</div>
@@ -708,7 +908,7 @@
       </div>
     </div>
 
-    <div class="card-nav">
+    <div class="card-nav" id="card-nav-row">
       <button class="nav-arrow" onclick="prevCard()" id="btn-prev">←</button>
       <div class="fc-verdict" id="fc-verdict" style="display:none">
         <button class="verdict-btn verdict-wrong" onclick="markCard(false)">✗ Still Learning</button>
@@ -757,6 +957,49 @@
     <div class="empty-state" id="list-empty" style="display:none">
       <div class="es-icon">◎</div>
       <p>No terms match your filters</p>
+    </div>
+  </div>
+
+  <!-- KNOWN VIEW -->
+  <div class="view" id="view-known">
+    <div class="known-header">
+      <div>
+        <div class="known-title">Terms You Know</div>
+        <div class="known-subtitle" id="known-subtitle">0 terms marked as known</div>
+      </div>
+      <div class="known-header-actions">
+        <button class="btn" onclick="openSearch()">+ Add Term</button>
+        <button class="btn danger" onclick="confirmClearAll()">✕ Clear All</button>
+      </div>
+    </div>
+
+    <div class="known-empty" id="known-empty">
+      <div class="es-icon">★</div>
+      <p>No terms marked as known yet.</p>
+      <p style="margin-top:8px;font-size:11px;">Mark cards with ✓ Got It while studying, or add them manually here.</p>
+    </div>
+
+    <div class="known-grid" id="known-grid"></div>
+
+    <!-- Add term search modal -->
+    <div class="modal-overlay" id="search-modal" onclick="closeSearch(event)">
+      <div class="modal-box">
+        <div class="modal-title">Add a Known Term</div>
+        <input type="text" class="search-input" id="known-search-input" placeholder="Search for a term…" oninput="renderSearchResults()" style="margin-bottom:12px;">
+        <div class="modal-results" id="known-search-results"></div>
+      </div>
+    </div>
+
+    <!-- Confirm clear modal -->
+    <div class="modal-overlay" id="clear-modal" onclick="closeClearModal(event)">
+      <div class="modal-box" style="max-width:360px;text-align:center;">
+        <div class="modal-title" style="margin-bottom:8px;">Clear All Known Terms?</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;">This will remove all <span id="clear-count">0</span> terms from your known list. This can't be undone.</div>
+        <div style="display:flex;gap:12px;justify-content:center;">
+          <button class="btn danger" onclick="clearAllKnown()">Yes, Clear All</button>
+          <button class="btn" onclick="closeClearModal()">Cancel</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -903,6 +1146,35 @@ let selectedUnits = new Set(['all']);
 let currentView = 'flashcards';
 let filteredTerms = [...ALL_TERMS];
 
+// KNOWN — persisted to localStorage
+let knownIds = new Set();
+const STORAGE_KEY = 'apush_known_ids';
+
+function loadKnown() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) knownIds = new Set(JSON.parse(raw));
+  } catch(e) { knownIds = new Set(); }
+}
+
+function saveKnown() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...knownIds])); } catch(e) {}
+}
+
+function addKnown(id) {
+  knownIds.add(id);
+  saveKnown();
+  renderKnownBadge();
+  if (currentView === 'known') renderKnownView();
+}
+
+function removeKnown(id) {
+  knownIds.delete(id);
+  saveKnown();
+  renderKnownBadge();
+  if (currentView === 'known') renderKnownView();
+}
+
 // FLASHCARD STATE
 let fcDeck = [];
 let fcIndex = 0;
@@ -956,15 +1228,20 @@ function refreshCurrentView() {
   filteredTerms = getFilteredTerms();
   if (currentView === 'flashcards') initFlashcards();
   else if (currentView === 'list') renderList();
+  else if (currentView === 'known') renderKnownView();
 }
 
 // ======== FLASHCARDS ========
+let learningCards = []; // tracks cards marked "still learning"
+
 function initFlashcards() {
   fcDeck = [...filteredTerms];
   fcIndex = 0;
   isFlipped = false;
   gotIt = 0;
   learning = 0;
+  learningCards = [];
+  hideDeckComplete();
   updateScores();
   renderCard();
 }
@@ -976,11 +1253,76 @@ function shuffleCards() {
   }
   fcIndex = 0;
   isFlipped = false;
+  hideDeckComplete();
   renderCard();
 }
 
 function resetCards() {
   initFlashcards();
+}
+
+function hideDeckComplete() {
+  document.getElementById('deck-complete').classList.remove('visible');
+  document.getElementById('card-arena').style.display = '';
+  document.getElementById('card-nav-row').style.display = '';
+  document.getElementById('score-row').style.display = '';
+}
+
+function showDeckComplete() {
+  document.getElementById('card-arena').style.display = 'none';
+  document.getElementById('card-nav-row').style.display = 'none';
+  document.getElementById('score-row').style.display = 'none';
+
+  const complete = document.getElementById('deck-complete');
+  complete.classList.add('visible');
+
+  document.getElementById('dc-got').textContent = gotIt;
+  document.getElementById('dc-learning').textContent = learning;
+
+  const actions = document.getElementById('dc-actions');
+  actions.innerHTML = '';
+
+  if (learningCards.length > 0) {
+    // Show an encouraging message and offer to retry just the learning cards
+    document.getElementById('dc-icon').textContent = learning === fcDeck.length ? '📚' : '💪';
+    document.getElementById('dc-title').textContent = learning === fcDeck.length ? 'Keep Studying!' : 'Round Complete!';
+    document.getElementById('dc-subtitle').textContent = learningCards.length === 1
+      ? `1 card still needs work — keep going!`
+      : `${learningCards.length} cards still need work — keep going!`;
+
+    const retryBtn = document.createElement('button');
+    retryBtn.className = 'dc-retry-btn';
+    retryBtn.textContent = `↺ Study ${learningCards.length} Still Learning`;
+    retryBtn.onclick = retryLearning;
+    actions.appendChild(retryBtn);
+  } else {
+    document.getElementById('dc-icon').textContent = '🏆';
+    document.getElementById('dc-title').textContent = 'Perfect Round!';
+    document.getElementById('dc-subtitle').textContent = "You got every card — nice work!";
+  }
+
+  const resetBtn = document.createElement('button');
+  resetBtn.className = 'dc-reset-btn';
+  resetBtn.textContent = '⇄ Start Over';
+  resetBtn.onclick = resetCards;
+  actions.appendChild(resetBtn);
+}
+
+function retryLearning() {
+  // Replace deck with only the "still learning" cards, shuffled
+  fcDeck = [...learningCards];
+  for (let i = fcDeck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [fcDeck[i], fcDeck[j]] = [fcDeck[j], fcDeck[i]];
+  }
+  fcIndex = 0;
+  isFlipped = false;
+  gotIt = 0;
+  learning = 0;
+  learningCards = [];
+  hideDeckComplete();
+  updateScores();
+  renderCard();
 }
 
 function renderCard() {
@@ -1000,6 +1342,17 @@ function renderCard() {
   const unitLabel = 'Unit ' + card.unit;
   document.getElementById('cf-unit-bar').textContent = unitLabel;
   document.getElementById('cf-term').textContent = card.term;
+
+  // Known badge on front face
+  const existingBadge = document.getElementById('cf-known-badge');
+  if (existingBadge) existingBadge.remove();
+  if (knownIds.has(card.id)) {
+    const badge = document.createElement('div');
+    badge.className = 'known-badge';
+    badge.id = 'cf-known-badge';
+    badge.textContent = '★ Known';
+    document.getElementById('card-front').appendChild(badge);
+  }
 
   document.getElementById('cb-unit-bar').textContent = unitLabel;
   document.getElementById('cb-term').textContent = card.term;
@@ -1052,19 +1405,133 @@ function prevCard() {
 }
 
 function markCard(correct) {
-  if (correct) gotIt++;
-  else learning++;
+  const card = fcDeck[fcIndex];
+  if (correct) {
+    gotIt++;
+    addKnown(card.id); // persist to known list
+  } else {
+    learning++;
+    learningCards.push(card);
+  }
   updateScores();
+
   if (fcIndex < fcDeck.length - 1) {
     fcIndex++;
     isFlipped = false;
     renderCard();
+  } else {
+    showDeckComplete();
   }
 }
 
 function updateScores() {
   document.getElementById('score-got').textContent = gotIt;
   document.getElementById('score-learning').textContent = learning;
+}
+
+function renderKnownBadge() {
+  // Update the nav badge count if on known view
+  const knownCount = knownIds.size;
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    if (b.textContent.includes('Known')) {
+      b.textContent = knownCount > 0 ? `★ Known (${knownCount})` : '★ Known';
+    }
+  });
+}
+
+// ======== KNOWN VIEW ========
+function renderKnownView() {
+  const knownTerms = ALL_TERMS.filter(t => knownIds.has(t.id));
+  const grid = document.getElementById('known-grid');
+  const empty = document.getElementById('known-empty');
+  const subtitle = document.getElementById('known-subtitle');
+
+  subtitle.textContent = `${knownTerms.length} term${knownTerms.length !== 1 ? 's' : ''} marked as known`;
+  document.getElementById('clear-count').textContent = knownTerms.length;
+
+  if (knownTerms.length === 0) {
+    empty.style.display = 'block';
+    grid.innerHTML = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  grid.innerHTML = '';
+
+  // Sort by id (chronological order in doc)
+  knownTerms.sort((a, b) => a.id - b.id).forEach(t => {
+    const card = document.createElement('div');
+    card.className = 'known-card';
+    card.innerHTML = `
+      <div class="known-card-info">
+        <div class="known-card-term" title="${t.term}">${t.term}</div>
+        <div class="known-card-unit">Unit ${t.unit} · ${t.when}</div>
+      </div>
+      <button class="known-card-remove" title="Remove from known" onclick="removeKnown(${t.id})">✕</button>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function openSearch() {
+  document.getElementById('search-modal').classList.add('open');
+  document.getElementById('known-search-input').value = '';
+  renderSearchResults();
+  setTimeout(() => document.getElementById('known-search-input').focus(), 50);
+}
+
+function closeSearch(e) {
+  if (!e || e.target === document.getElementById('search-modal')) {
+    document.getElementById('search-modal').classList.remove('open');
+  }
+}
+
+function renderSearchResults() {
+  const q = document.getElementById('known-search-input').value.toLowerCase();
+  const results = document.getElementById('known-search-results');
+  const matches = ALL_TERMS.filter(t =>
+    !q || t.term.toLowerCase().includes(q) || t.who.toLowerCase().includes(q) || String(t.when).includes(q)
+  ).slice(0, 30);
+
+  results.innerHTML = '';
+  matches.forEach(t => {
+    const isKnown = knownIds.has(t.id);
+    const item = document.createElement('div');
+    item.className = 'modal-result-item' + (isKnown ? ' already-known' : '');
+    item.innerHTML = `
+      <div>
+        <div class="modal-result-name">${t.term}</div>
+        <div class="modal-result-unit">Unit ${t.unit} · ${t.when}</div>
+      </div>
+      <div class="modal-result-add">${isKnown ? '★ Known' : '+ Add'}</div>
+    `;
+    if (!isKnown) {
+      item.onclick = () => {
+        addKnown(t.id);
+        renderSearchResults(); // refresh to show it's now known
+      };
+    }
+    results.appendChild(item);
+  });
+}
+
+function confirmClearAll() {
+  if (knownIds.size === 0) return;
+  document.getElementById('clear-modal').classList.add('open');
+}
+
+function closeClearModal(e) {
+  if (!e || e.target === document.getElementById('clear-modal')) {
+    document.getElementById('clear-modal').classList.remove('open');
+  }
+}
+
+function clearAllKnown() {
+  knownIds.clear();
+  saveKnown();
+  renderKnownBadge();
+  renderKnownView();
+  closeClearModal();
 }
 
 // ======== LIST ========
@@ -1106,6 +1573,8 @@ function filterList() {
 
 
 // INIT
+loadKnown();
+renderKnownBadge();
 initFlashcards();
 renderList();
 </script>
